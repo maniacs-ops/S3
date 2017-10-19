@@ -16,11 +16,11 @@ S3DATA
 S3DATA=multiple
 ^^^^^^^^^^^^^^^
 Allows you to run Scality Zenko CloudServer with multiple data backends, defined
-as regions.
+as location constraints.
 When using multiple data backends, a custom ``locationConfig.json`` file is
-mandatory. It will allow you to set custom regions. You will then need to
-provide associated rest_endpoints for each custom region in your
-``config.json`` file.
+mandatory. It will allow you to set custom location constraints. You will then
+need to provide associated rest_endpoints for each custom location constraint
+in your ``config.json`` file.
 `Learn more about multiple backends configuration <../GETTING_STARTED/#location-configuration>`__
 
 If you are using Scality RING endpoints, please refer to your customer
@@ -33,9 +33,9 @@ to your ``locationConfig.json`` file with the ``aws_s3`` location type:
 
 .. code:: json
 
-(...)
     "aws-test": {
         "type": "aws_s3",
+        "legacyAwsBehavior": true,
         "details": {
             "awsEndpoint": "s3.amazonaws.com",
             "bucketName": "yourawss3bucket",
@@ -43,7 +43,6 @@ to your ``locationConfig.json`` file with the ``aws_s3`` location type:
             "credentialsProfile": "aws_hosted_profile"
         }
     }
-(...)
 
 You will also have to edit your AWS credentials file to be able to use your
 command line tool of choice. This file should mention credentials for all the
@@ -52,12 +51,12 @@ profiles.
 
 .. code:: json
 
-[default]
-aws_access_key_id=accessKey1
-aws_secret_access_key=verySecretKey1
-[aws_hosted_profile]
-aws_access_key_id={{YOUR_ACCESS_KEY}}
-aws_secret_access_key={{YOUR_SECRET_KEY}}
+    [default]
+    aws_access_key_id=accessKey1
+    aws_secret_access_key=verySecretKey1
+    [aws_hosted_profile]
+    aws_access_key_id={{YOUR_ACCESS_KEY}}
+    aws_secret_access_key={{YOUR_SECRET_KEY}}
 
 Just as you need to mount your locationConfig.json, you will need to mount your
 AWS credentials file at run time:
@@ -69,6 +68,27 @@ destination on real AWS unless the account associated with the
 access Key/secret Key pairs used for the destination bucket has rights
 to get in the source bucket. ACL's would have to be updated
 on AWS directly to enable this.
+
+Running it with a Microsoft Azure hosted backend
+""""""""""""""""""""""""""""""""""""""""""""""""
+To run CloudServer with an Azure backend, you will have to add a new section
+to your ``locationConfig.json`` file with the ``azure`` location type:
+
+.. code:: json
+
+    "azure-test": {
+        "type": "azure",
+        "legacyAwsBehavior": true,
+        "details": {
+          "azureBlobEndpoint": "https://example-endpoint.com",
+          "azureBlobSAS": "SAS-string-example",
+          "bucketMatch": true,
+          "azureContainerName": "yourAzureContainer"
+        }
+    }
+
+Edit the ``azureBlobEndpoint`` and ``azureBlobSAS`` keys to match the
+credentials
 
 S3BACKEND
 ~~~~~~

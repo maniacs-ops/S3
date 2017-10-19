@@ -200,15 +200,16 @@ For instance, the following locationConstraint will save data sent to
 
 Each locationConstraint must include the ``type``,
 ``legacyAwsBehavior``, and ``details`` keys. ``type`` indicates which
-backend will be used for that region. Currently, mem, file, and scality
-are the supported backends. ``legacyAwsBehavior`` indicates whether the
-region will have the same behavior as the AWS S3 'us-east-1' region. If
-the locationConstraint type is scality, ``details`` should contain
-connector information for sproxyd. If the locationConstraint type is mem
-or file, ``details`` should be empty.
+backend will be used for that region. Currently, 'mem', 'file', 'scality',
+'aws_s3', and 'azure' are the supported backend types. ``legacyAwsBehavior``
+indicates whether the region will have the same behavior as the AWS S3
+'us-east-1' region. If the locationConstraint type is scality, ``details``
+should contain connector information for sproxyd. If the locationConstraint
+type is mem or file, ``details`` should be empty.
 
-Once you have your locationConstraints in your locationConfig.json, you
-can specify a default locationConstraint for each of your endpoints.
+Once you have your locationConstraints in your ``locationConfig.json``, you
+can specify a default locationConstraint for each of your endpoints in
+``config.json``.
 
 For instance, the following sets the ``localhost`` endpoint to the
 ``myLocationConstraint`` data backend defined above:
