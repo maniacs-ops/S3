@@ -32,7 +32,7 @@
                     },
                     "ACL": {
                         "location": "header",
-                        "locationName": "x-amz-acl"
+                        "locationName": "x-goog-acl"
                     },
                     "Body": {
                         "streaming": true,
@@ -83,7 +83,7 @@
                     "Metadata": {
                         "shape": "S11",
                         "location": "headers",
-                        "locationName": "x-amz-meta-"
+                        "locationName": "x-goog-meta-"
                     }
                 },
                 "payload": "Body"
@@ -93,7 +93,7 @@
                 "members": {
                     "Expiration": {
                         "location": "header",
-                        "locationName": "x-amz-expiration"
+                        "locationName": "x-goog-expiration"
                     },
                     "ETag": {
                         "location": "header",
@@ -200,7 +200,7 @@
                     },
                     "Expiration": {
                         "location": "header",
-                        "locationName": "x-amz-expiration"
+                        "locationName": "x-goog-expiration"
                     },
                     "LastModified": {
                         "location": "header",
@@ -259,16 +259,16 @@
                     },
                     "WebsiteRedirectLocation": {
                         "location": "header",
-                        "locationName": "x-amz-website-redirect-location"
+                        "locationName": "x-goog-website-redirect-location"
                     },
                     "ServerSideEncryption": {
                         "location": "header",
-                        "locationName": "x-amz-server-side-encryption"
+                        "locationName": "x-goog-server-side-encryption"
                     },
                     "Metadata": {
                         "shape": "S11",
                         "location": "headers",
-                        "locationName": "x-amz-meta-"
+                        "locationName": "x-goog-meta-"
                     },
                     "StorageClass": {
                         "location": "header",
@@ -349,7 +349,7 @@
                     },
                     "Expiration": {
                         "location": "header",
-                        "locationName": "x-amz-expiration"
+                        "locationName": "x-goog-expiration"
                     },
                     "LastModified": {
                         "location": "header",
@@ -405,7 +405,7 @@
                     "Metadata": {
                         "shape": "S11",
                         "location": "headers",
-                        "locationName": "x-amz-meta-"
+                        "locationName": "x-goog-meta-"
                     },
                     "StorageClass": {
                         "location": "headers",
@@ -429,7 +429,7 @@
                 "members": {
                     "ACL": {
                         "location": "header",
-                        "locationName": "x-amz-acl"
+                        "locationName": "x-goog-acl"
                     },
                     "Bucket": {
                         "location": "uri",
@@ -457,23 +457,23 @@
                     },
                     "CopySource": {
                         "location": "header",
-                        "locationName": "x-amz-copy-source"
+                        "locationName": "x-goog-copy-source"
                     },
                     "CopySourceIfMatch": {
                         "location": "header",
-                        "locationName": "x-amz-copy-source-if-match"
+                        "locationName": "x-goog-copy-source-if-match"
                     },
                     "CopySourceIfModifiedSince": {
                         "location": "header",
-                        "locationName": "x-amz-copy-source-if-modified-since"
+                        "locationName": "x-goog-copy-source-if-modified-since"
                     },
                     "CopySourceIfNoneMatch": {
                         "location": "header",
-                        "locationName": "x-amz-copy-source-if-none-match"
+                        "locationName": "x-goog-copy-source-if-none-match"
                     },
                     "CopySourceIfUnmodifiedSince": {
                         "location": "header",
-                        "locationName": "x-amz-copy-source-if-unmodified-since",
+                        "locationName": "x-goog-copy-source-if-unmodified-since",
                         "type": "timestamp"
                     },
                     "Expires": {
@@ -488,11 +488,11 @@
                     "Metadata": {
                         "shape": "S11",
                         "location": "headers",
-                        "locationName": "x-amz-meta-"
+                        "locationName": "x-goog-meta-"
                     },
                     "MetadataDirective": {
                         "location": "header",
-                        "locationName": "x-amz-metadata-directive"
+                        "locationName": "x-goog-metadata-directive"
                     }
                 }
             },
@@ -505,7 +505,7 @@
                     },
                     "Expiration": {
                         "location": "header",
-                        "locationName": "x-amz-expiration"
+                        "locationName": "x-goog-expiration"
                     },
                     "ContentHash": {
                         "location": "header",
