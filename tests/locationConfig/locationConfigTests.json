@@ -33,7 +33,9 @@
             "bucketName": "multitester555",
             "bucketMatch": true,
             "credentialsProfile": "default",
-            "serverSideEncryption": true
+            "serverSideEncryption": true,
+            "https": false,
+            "proxy": "http://localhost:8003"
         }
     },
     "awsbackend": {
@@ -43,7 +45,9 @@
             "awsEndpoint": "s3.amazonaws.com",
             "bucketName": "multitester555",
             "bucketMatch": true,
-            "credentialsProfile": "default"
+            "credentialsProfile": "default",
+            "https": false,
+            "proxy": "http://localhost:8003"
         }
     },
     "awsbackendmismatch": {
@@ -53,7 +57,9 @@
             "awsEndpoint": "s3.amazonaws.com",
             "bucketName": "multitester555",
             "bucketMatch": false,
-            "credentialsProfile": "default"
+            "credentialsProfile": "default",
+            "https": false,
+            "proxy": "http://localhost:8003"
         }
     },
     "awsbackend2": {
@@ -63,7 +69,9 @@
             "awsEndpoint": "s3.amazonaws.com",
             "bucketName": "multitester222",
             "bucketMatch": true,
-            "credentialsProfile": "default_2"
+            "credentialsProfile": "default_2",
+            "https": false,
+            "proxy": "http://localhost:8003"
         }
     },
     "azurebackend": {
@@ -74,7 +82,8 @@
             "azureStorageAccountName": "fakeaccountname",
             "azureStorageAccessKey": "Fake00Key001",
             "bucketMatch": true,
-            "azureContainerName": "s3test"
+            "azureContainerName": "s3test",
+            "proxy": "http://localhost:8001"
         }
     },
     "azurebackend2": {
@@ -85,7 +94,8 @@
             "azureStorageAccountName": "fakeaccountname2",
             "azureStorageAccessKey": "Fake00Key002",
             "bucketMatch": true,
-            "azureContainerName": "s3test2"
+            "azureContainerName": "s3test2",
+            "proxy": "http://localhost:8002"
         }
     },
     "azurebackendmismatch": {
@@ -96,7 +106,8 @@
             "azureStorageAccountName": "fakeaccountname",
             "azureStorageAccessKey": "Fake00Key001",
             "bucketMatch": false,
-            "azureContainerName": "s3test"
+            "azureContainerName": "s3test",
+            "proxy": "http://localhost:8001"
         }
     }
 }

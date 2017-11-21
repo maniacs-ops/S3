@@ -53,7 +53,7 @@
     "cdmiclient": "scality/cdmiclient#rel/7.2"
   },
   "scripts": {
-    "ft_awssdk": "cd tests/functional/aws-node-sdk && mocha test/",
+    "ft_awssdk": "cd tests/functional/aws-node-sdk && mocha test/multipleBackend/",
     "ft_awssdk_aws": "cd tests/functional/aws-node-sdk && AWS_ON_AIR=true mocha test/",
     "ft_awssdk_buckets": "cd tests/functional/aws-node-sdk && mocha test/bucket",
     "ft_awssdk_objects_misc": "cd tests/functional/aws-node-sdk && mocha test/legacy test/object test/service test/support",
