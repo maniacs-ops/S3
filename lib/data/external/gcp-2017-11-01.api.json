@@ -4,7 +4,7 @@
         "apiVersion": "2017-11-01",
         "checksumFormat": "md5",
         "endpointPrefix": "s3",
-        "globalEndpiont": "storage.googleapi.com",
+        "globalEndpoint": "storage.googleapi.com",
         "protocol": "rest-xml",
         "serviceAbbreviation": "GCP",
         "serviceFullName": "Google Cloud Storage",
@@ -81,7 +81,7 @@
                         "locatinName": "Key"
                     },
                     "Metadata": {
-                        "shape": "S11",
+                        "shape": "MetadataShape",
                         "location": "headers",
                         "locationName": "x-goog-meta-"
                     }
@@ -266,7 +266,7 @@
                         "locationName": "x-goog-server-side-encryption"
                     },
                     "Metadata": {
-                        "shape": "S11",
+                        "shape": "MetadataShape",
                         "location": "headers",
                         "locationName": "x-goog-meta-"
                     },
@@ -403,7 +403,7 @@
                         "type": "timestamp"
                     },
                     "Metadata": {
-                        "shape": "S11",
+                        "shape": "MetadataShape",
                         "location": "headers",
                         "locationName": "x-goog-meta-"
                     },
@@ -486,7 +486,7 @@
                         "locationName": "Key"
                     },
                     "Metadata": {
-                        "shape": "S11",
+                        "shape": "MetadataShape",
                         "location": "headers",
                         "locationName": "x-goog-meta-"
                     },
@@ -522,6 +522,89 @@
                 }
             },
             "alias": "PutObjectCopy"
+        },
+        "GetObjectAcl": {
+            "http": {
+                "method": "GET",
+                "requestUri": "/{Bucket}/{Key+}?acl"
+            },
+            "input": {
+                "type": "structure",
+                "required": [
+                    "Bucket",
+                    "Key"
+                ],
+                "members": {
+                    "Bucket": {
+                        "location": "uri",
+                        "locationName": "Bucket"
+                    },
+                    "Key": {
+                        "location": "uri",
+                        "locationName": "Key"
+                    },
+                    "VersionId": {
+                        "location": "querystring",
+                        "locationName": "generation"
+                    }
+                }
+            },
+            "output": {
+                "shape": "ACLShape"
+            }
+        },
+        "PutObjectAcl": {
+            "http": {
+                "method": "PUT",
+                "requestUri": "/{Bucket}/{Key+}?acl"
+            },
+            "input": {
+                "type": "structure",
+                "required": [
+                    "Bucket",
+                    "Key"
+                ],
+                "members": {
+                    "ACL": {
+                        "location": "header",
+                        "locationName": "x-goog-acl"
+                    },
+                    "AccessControlPolicy": {
+                        "shape": "ACLShape",
+                        "locationName": "AccessControlList"
+                    },
+                    "Bucket": {
+                        "location": "uri",
+                        "locationName": "Bucket"
+                    },
+                    "ContentMD5": {
+                        "location": "header",
+                        "locationName": "Content-MD5"
+                    },
+                    "Key": {
+                        "location": "uri",
+                        "locationName": "Key"
+                    },
+                    "VersionId": {
+                        "location": "querystring",
+                        "locationName": "generation"
+                    }
+                },
+                "payload": "AccessControlPolicy"
+            },
+            "output": {
+                "type": "structure",
+                "members": {
+                    "ContentLength": {
+                        "location": "header",
+                        "locationName": "Content-Length"
+                    },
+                    "ContentType": {
+                        "location": "header",
+                        "locationName": "Content-Type"
+                    }
+                }
+            }
         },
         "DeleteObject": {
             "http": {
@@ -585,18 +668,55 @@
         }
     },
     "shapes": {
-        "Sj": {
-          "type": "string",
-          "sensitive": true
-      },
-      "S11": {
+        "MetadataShape": {
             "type": "map",
             "key": {},
             "value": {}
         },
-        "S19": {
-            "type": "blob",
-            "sensitive": true
+        "ACLShape": {
+            "locationName": "AccessControlList",
+            "type": "structure",
+            "members": {
+                "Owner": {
+                    "type": "structure",
+                    "members": {
+                        "ID": {},
+                        "DisplayName": {
+                            "locationName": "Name"
+                        }
+                    }
+                },
+                "Grants": {
+                    "locationName": "Entries",
+                    "type": "list",
+                    "member": {
+                        "locationName": "Entry",
+                        "type": "structure",
+                        "required": [
+                            "Type"
+                        ],
+                        "members": {
+                            "Grantee": {
+                                "locationName": "Scope",
+                                "type": "structure",
+                                "members": {
+                                    "DisplayName": {
+                                        "locationName": "Name"
+                                    },
+                                    "ID": {},
+                                    "EmailAddress": {},
+                                    "Doamin": {},
+                                    "Type": {
+                                        "locationName": "type",
+                                        "xmlAttribute": true
+                                    }
+                                }
+                            },
+                            "Permission": {}
+                        }
+                    }
+                }
+            }
         }
     }
 }
