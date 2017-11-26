@@ -13,6 +13,24 @@
         "uid": "gcp-2017-11-01"
     },
     "operations": {
+        "HeadBucket": {
+            "http": {
+                "method": "HEAD",
+                "requestUri": "/{Bucket}"
+            },
+            "input": {
+                "type": "structure",
+                "required": [
+                    "Bucket"
+                ],
+                "members": {
+                    "Bucket": {
+                        "location": "uri",
+                        "locationName": "Bucket"
+                    }
+                }
+            }
+        },
         "PutObject": {
             "http": {
                 "method": "PUT",
@@ -523,6 +541,42 @@
             },
             "alias": "PutObjectCopy"
         },
+        "DeleteObject": {
+            "http": {
+                "method": "DELETE",
+                "requestUri": "/{Bucket}/{Key+}"
+            },
+            "input": {
+                "type": "structure",
+                "required": [
+                    "Bucket",
+                    "Key"
+                ],
+                "members": {
+                    "Bucket": {
+                        "location": "uri",
+                        "locationName": "Bucket"
+                    },
+                    "Key": {
+                        "location": "uri",
+                        "locationName": "Key"
+                    },
+                    "VersionId": {
+                        "location": "querystring",
+                        "locationName": "generation"
+                    }
+                }
+            },
+            "output": {
+                "type": "structure",
+                "members": {
+                    "VersionId": {
+                        "location": "header",
+                        "locationName": "x-goog-generation"
+                    }
+                }
+            }
+        },
         "GetObjectAcl": {
             "http": {
                 "method": "GET",
@@ -550,7 +604,7 @@
                 }
             },
             "output": {
-                "shape": "ACLShape"
+                "shape": "ACLSape"
             }
         },
         "PutObjectAcl": {
@@ -606,42 +660,6 @@
                 }
             }
         },
-        "DeleteObject": {
-            "http": {
-                "method": "DELETE",
-                "requestUri": "/{Bucket}/{Key+}"
-            },
-            "input": {
-                "type": "structure",
-                "required": [
-                    "Bucket",
-                    "Key"
-                ],
-                "members": {
-                    "Bucket": {
-                        "location": "uri",
-                        "locationName": "Bucket"
-                    },
-                    "Key": {
-                        "location": "uri",
-                        "locationName": "Key"
-                    },
-                    "VersionId": {
-                        "location": "querystring",
-                        "locationName": "generation"
-                    }
-                }
-            },
-            "output": {
-                "type": "structure",
-                "members": {
-                    "VersionId": {
-                        "location": "header",
-                        "locationName": "x-goog-generation"
-                    }
-                }
-            }
-        },
         "GetBucketVersioning": {
             "http": {
                 "method": "GET",
@@ -665,6 +683,48 @@
                     "Status": {}
                 }
             }
+        },
+        "ListObjectVersions": {
+            "http": {
+                "method": "GET",
+                "requestUri": "/{Bucket}?versions"
+            },
+            "input": {
+                "type": "structure",
+                "required": [
+                    "Bucket"
+                ],
+                "members": {
+                    "Bucket": {
+                        "location": "uri",
+                        "locationName": "Bucket"
+                    },
+                    "Delimiter": {
+                        "location": "querystring",
+                        "locationName": "delimiter"
+                    },
+                    "KeyMarker": {
+                        "location": "querystring",
+                        "locationName": "key-marker"
+                    },
+                    "MaxKeys": {
+                        "location": "querystring",
+                        "locationName": "max-keys",
+                        "type": "integer"
+                    },
+                    "Prefix": {
+                        "location": "querystring",
+                        "locationName": "prefix"
+                    },
+                    "VersionIdMarker": {
+                        "location": "querystring",
+                        "locationName": "generation-marker"
+                    }
+                }
+            },
+            "output": {
+                "shape": "VersionsShape"
+            }
         }
     },
     "shapes": {
@@ -673,18 +733,21 @@
             "key": {},
             "value": {}
         },
+        "OwnerShape": {
+            "type": "structure",
+            "members": {
+                "ID": {},
+                "DisplayName": {
+                    "locationName": "Name"
+                }
+            }
+        },
         "ACLShape": {
             "locationName": "AccessControlList",
             "type": "structure",
             "members": {
                 "Owner": {
-                    "type": "structure",
-                    "members": {
-                        "ID": {},
-                        "DisplayName": {
-                            "locationName": "Name"
-                        }
-                    }
+                    "shape": "OwnerShape"
                 },
                 "Grants": {
                     "locationName": "Entries",
@@ -715,6 +778,72 @@
                             "Permission": {}
                         }
                     }
+                }
+            }
+        },
+        "VersionsShape": {
+            "locationName": "ListBucketResult",
+            "type": "structure",
+            "members": {
+                "Name": {},
+                "Prefix": {},
+                "Delimiter": {},
+                "MaxKeys": {
+                    "type": "integer"
+                },
+                "IsTruncated": {
+                    "type": "boolean"
+                },
+                "VersionIdMarker": {
+                    "locationName": "GenerationMarker"
+                },
+                "NextVersionIdMarker": {
+                    "locationName": "NextGenerationMarker"
+                },
+                "Versions": {
+                    "locationName": "Version",
+                    "type": "list",
+                    "member": {
+                        "type": "structure",
+                        "members": {
+                            "ETag": {},
+                            "Size": {
+                                "type": "integer"
+                            },
+                            "StorageClass": {},
+                            "Key": {},
+                            "VersionId": {
+                                "locationName": "Generation"
+                            },
+                            "MetaVersionId": {
+                                "locationName": "MetaGeneration"
+                            },
+                            "IsLatest": {
+                                "type": "boolean"
+                            },
+                            "DeletedTime": {
+                                "type": "timestamp"
+                            },
+                            "LastModified": {
+                                "type": "timestamp"
+                            },
+                            "Owner": {
+                                "shape": "OwnerShape"
+                            }
+                        }
+                    },
+                    "flattened": true
+                },
+                "CommonPrefixes": {
+                    "locationName": "CommonPrefixes",
+                    "type": "list",
+                    "member": {
+                        "type": "structure",
+                        "members": {
+                            "Prefix": {}
+                        }
+                    },
+                    "flattened": true
                 }
             }
         }
