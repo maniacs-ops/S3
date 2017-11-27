@@ -9,7 +9,6 @@ const azure = require('azure-storage');
 const { getRealAwsConfig } = require('../support/awsConfig');
 const { config } = require('../../../../../lib/Config');
 const authdata = require('../../../../../conf/authdata.json');
-const GCP = require('../../../../../lib/data/external/gcpClient');
 
 const memLocation = 'scality-internal-mem';
 const fileLocation = 'scality-internal-file';
@@ -21,10 +20,6 @@ const azureLocation = 'azurebackend';
 const azureLocation2 = 'azurebackend2';
 const azureLocationMismatch = 'azurebackendmismatch';
 const azureLocationNonExistContainer = 'azurenonexistcontainer';
-const gcpLocation = 'gcpbackend';
-const gcpLocation2 = 'gcpbackend2';
-const gcpLocationMismatch = 'gcpbackendmismatch';
-const gcpLocationEncryption = 'gcpbackendencryption';
 const versioningEnabled = { Status: 'Enabled' };
 const versioningSuspended = { Status: 'Suspended' };
 const awsFirstTimeout = 10000;
@@ -32,19 +27,12 @@ const awsSecondTimeout = 30000;
 let describeSkipIfNotMultiple = describe.skip;
 let awsS3;
 let awsBucket;
-let gcpS3;
-let gcpBucket;
 
 if (config.backends.data === 'multiple') {
     describeSkipIfNotMultiple = describe;
-
     const awsConfig = getRealAwsConfig(awsLocation);
-    awsBucket = config.locationConstraints[awsLocation].details.bucketName;
     awsS3 = new AWS.S3(awsConfig);
-
-    const gcpConfig = getRealAwsConfig(gcpLocation);
-    gcpS3 = new GCP(gcpConfig);
-    gcpBucket = config.locationConstraints[gcpLocation].details.bucketName;
+    awsBucket = config.locationConstraints[awsLocation].details.bucketName;
 }
 
 function _assertErrorResult(err, expectedError, desc) {
@@ -61,8 +49,6 @@ const utils = {
     describeSkipIfNotMultiple,
     awsS3,
     awsBucket,
-    gcpS3,
-    gcpBucket,
     fileLocation,
     memLocation,
     awsLocation,
@@ -73,10 +59,6 @@ const utils = {
     azureLocation2,
     azureLocationMismatch,
     azureLocationNonExistContainer,
-    gcpLocation,
-    gcpLocation2,
-    gcpLocationMismatch,
-    gcpLocationEncryption,
 };
 
 utils.getOwnerInfo = account => {
@@ -262,25 +244,16 @@ utils.getAndAssertResult = (s3, params, cb) => {
 };
 
 utils.getAwsRetry = (params, retryNumber, assertCb) => {
-    const { key, versionId, s3Type } = params;
+    const { key, versionId } = params;
     const retryTimeout = {
         0: 0,
         1: awsFirstTimeout,
         2: awsSecondTimeout,
     };
     const maxRetries = 2;
-    let bucket;
-    let getObject;
-    if (s3Type === 'AWS') {
-        getObject = awsS3.getObject.bind(awsS3);
-        bucket = awsBucket;
-    } else if (s3Type === 'GCP') {
-        getObject = gcpS3.getObject.bind(gcpS3);
-        bucket = gcpBucket;
-    }
-    assert(getObject, `Unable to retrieve client for ${s3Type}`);
+    const getObject = awsS3.getObject.bind(awsS3);
     const timeout = retryTimeout[retryNumber];
-    return setTimeout(getObject, timeout, { Bucket: bucket, Key: key,
+    return setTimeout(getObject, timeout, { Bucket: awsBucket, Key: key,
         VersionId: versionId },
         (err, res) => {
             try {
