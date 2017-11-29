@@ -8,15 +8,13 @@ const {
     fileLocation,
     awsLocation,
     awsLocationMismatch,
+    s3Backends,
 } = require('../utils');
 
 const bucket = 'buckettestmultiplebackendget';
 const memObject = `memobject-${Date.now()}`;
 const fileObject = `fileobject-${Date.now()}`;
-const awsObject = `awsobject-${Date.now()}`;
 const emptyObject = `emptyObject-${Date.now()}`;
-const emptyAwsObject = `emptyObject-${Date.now()}`;
-const bigObject = `bigObject-${Date.now()}`;
 const mismatchObject = `mismatch-${Date.now()}`;
 const body = Buffer.from('I am a body', 'utf8');
 const bigBody = Buffer.alloc(10485760);
@@ -177,124 +175,172 @@ describe('Multiple backend get object', function testSuite() {
         });
 
         describeSkipIfNotMultiple('with objects in all available backends ' +
-            '(mem/file/AWS)', () => {
-            before(() => {
-                process.stdout.write('Putting object to mem\n');
-                return s3.putObjectAsync({ Bucket: bucket, Key: memObject,
-                    Body: body,
-                    Metadata: { 'scal-location-constraint': memLocation } })
-                .then(() => {
+        '(mem/file/AWS/GCP)', () => {
+            describe('mem', () => {
+                before(() => {
+                    process.stdout.write('Putting object to mem\n');
+                    return s3.putObjectAsync(
+                        { Bucket: bucket, Key: memObject, Body: body,
+                          Metadata: {
+                              'scal-location-constraint': memLocation },
+                    })
+                    .then(() => {
+                        process.stdout.write('Putting 0-byte object to mem\n');
+                        return s3.putObjectAsync(
+                            { Bucket: bucket, Key: emptyObject,
+                              Metadata: {
+                                  'scal-location-constraint': memLocation } });
+                    })
+                    .catch(err => {
+                        process.stdout.write(`Error putting objects: ${err}\n`);
+                        throw err;
+                    });
+                });
+                it('should get an object from mem', done => {
+                    s3.getObject({ Bucket: bucket, Key: memObject },
+                    (err, res) => {
+                        assert.equal(err, null,
+                            `Expected success but got error ${err}`);
+                        assert.strictEqual(res.ETag, `"${correctMD5}"`);
+                        done();
+                    });
+                });
+                it('should get a 0-byte object from mem', done => {
+                    s3.getObject({ Bucket: bucket, Key: emptyObject },
+                    (err, res) => {
+                        assert.equal(err, null,
+                            `Expected success but got error ${err}`);
+                        assert.strictEqual(res.ETag, `"${emptyMD5}"`);
+                        done();
+                    });
+                });
+            });
+
+            describe('file', () => {
+                before(() => {
                     process.stdout.write('Putting object to file\n');
-                    return s3.putObjectAsync({ Bucket: bucket, Key: fileObject,
-                        Body: body,
-                        Metadata:
-                        { 'scal-location-constraint': fileLocation },
+                    return s3.putObjectAsync(
+                        { Bucket: bucket, Key: fileObject, Body: body,
+                          Metadata: {
+                              'scal-location-constraint': fileLocation } })
+                    .catch(err => {
+                        process.stdout.write(`Error putting objects: ${err}\n`);
+                        throw err;
                     });
-                })
-                .then(() => {
-                    process.stdout.write('Putting object to AWS\n');
-                    return s3.putObjectAsync({ Bucket: bucket, Key: awsObject,
-                        Body: body,
-                        Metadata: {
-                            'scal-location-constraint': awsLocation } });
-                })
-                .then(() => {
-                    process.stdout.write('Putting 0-byte object to mem\n');
-                    return s3.putObjectAsync({ Bucket: bucket, Key: emptyObject,
-                        Metadata:
-                        { 'scal-location-constraint': memLocation },
-                    });
-                })
-                .then(() => {
-                    process.stdout.write('Putting 0-byte object to AWS\n');
-                    return s3.putObjectAsync({ Bucket: bucket,
-                        Key: emptyAwsObject,
-                        Metadata: {
-                            'scal-location-constraint': awsLocation } });
-                })
-                .then(() => {
-                    process.stdout.write('Putting large object to AWS\n');
-                    return s3.putObjectAsync({ Bucket: bucket,
-                        Key: bigObject, Body: bigBody,
-                        Metadata: {
-                            'scal-location-constraint': awsLocation } });
-                })
-                .catch(err => {
-                    process.stdout.write(`Error putting objects: ${err}\n`);
-                    throw err;
                 });
-            });
-            it('should get an object from mem', done => {
-                s3.getObject({ Bucket: bucket, Key: memObject }, (err, res) => {
-                    assert.equal(err, null, 'Expected success but got ' +
-                        `error ${err}`);
-                    assert.strictEqual(res.ETag, `"${correctMD5}"`);
-                    done();
-                });
-            });
-            it('should get a 0-byte object from mem', done => {
-                s3.getObject({ Bucket: bucket, Key: emptyObject },
-                (err, res) => {
-                    assert.equal(err, null, 'Expected success but got ' +
-                        `error ${err}`);
-                    assert.strictEqual(res.ETag, `"${emptyMD5}"`);
-                    done();
-                });
-            });
-            it('should get a 0-byte object from AWS', done => {
-                s3.getObject({ Bucket: bucket, Key: emptyAwsObject },
-                (err, res) => {
-                    assert.equal(err, null, 'Expected success but got error ' +
-                        `error ${err}`);
-                    assert.strictEqual(res.ETag, `"${emptyMD5}"`);
-                    done();
-                });
-            });
-            it('should get an object from file', done => {
-                s3.getObject({ Bucket: bucket, Key: fileObject },
+                it('should get an object from file', done => {
+                    s3.getObject({ Bucket: bucket, Key: fileObject },
                     (err, res) => {
-                        assert.equal(err, null, 'Expected success but got ' +
-                            `error ${err}`);
+                        assert.equal(err, null,
+                            `Expected success but got error ${err}`);
                         assert.strictEqual(res.ETag, `"${correctMD5}"`);
                         done();
                     });
+                });
             });
-            it('should get an object from AWS', done => {
-                s3.getObject({ Bucket: bucket, Key: awsObject },
-                    (err, res) => {
-                        assert.equal(err, null, 'Expected success but got ' +
-                            `error ${err}`);
-                        assert.strictEqual(res.ETag, `"${correctMD5}"`);
-                        done();
+
+            Object.keys(s3Backends).forEach(s3Type => {
+                const { s3Location } = s3Backends[s3Type];
+                const s3Object = `${s3Type.toLowerCase()}Object-${Date.now()}`;
+                const s3EmptyObject = `emptyObject-${Date.now()}`;
+                const s3BigObject = `bigObject-${Date.now()}`;
+                const skipIfGCP = s3Type === 'GCP' ? it.skip : it;
+
+                describe(`${s3Type}`, () => {
+                    before(() => {
+                        process.stdout.write(`Putting object to ${s3Type}\n`);
+                        return s3.putObjectAsync(
+                            { Bucket: bucket, Key: s3Object, Body: body,
+                              Metadata: {
+                                  'scal-location-constraint': s3Location } })
+                        .then(() => {
+                            process.stdout.write(
+                                `Putting 0-byte object to ${s3Type}\n`);
+                            return s3.putObjectAsync(
+                                { Bucket: bucket, Key: s3EmptyObject,
+                                Metadata: {
+                                    'scal-location-constraint': s3Location } });
+                        })
+                        .then(() => {
+                            if (s3Type !== 'GCP') {
+                                process.stdout.write(
+                                    `Putting large object to ${s3Type}\n`);
+                                return s3.putObjectAsync({
+                                    Bucket: bucket, Key: s3BigObject,
+                                    Body: bigBody,
+                                    Metadata: {
+                                        'scal-location-constraint': s3Location,
+                                    },
+                                });
+                            }
+                            return Promise.resolve(undefined);
+                        })
+                        .catch(err => {
+                            process.stdout.write(
+                                `Error putting objects: ${err}\n`);
+                            throw err;
+                        });
                     });
-            });
-            it('should get a large object from AWS', done => {
-                s3.getObject({ Bucket: bucket, Key: bigObject },
-                    (err, res) => {
-                        assert.equal(err, null, 'Expected success but got ' +
-                            `error ${err}`);
-                        assert.strictEqual(res.ETag, `"${bigMD5}"`);
-                        done();
+                    it(`should get an object from ${s3Type}`, done => {
+                        s3.getObject({ Bucket: bucket, Key: s3Object },
+                            (err, res) => {
+                                assert.equal(err, null,
+                                    `Expected success but got error ${err}`);
+                                assert.strictEqual(res.ETag, `"${correctMD5}"`);
+                                done();
+                            });
                     });
+                    it(`should get a 0-byte object from ${s3Type}`, done => {
+                        s3.getObject({ Bucket: bucket, Key: s3EmptyObject },
+                        (err, res) => {
+                            assert.equal(err, null,
+                                `Expected success but got error ${err}`);
+                            assert.strictEqual(res.ETag, `"${emptyMD5}"`);
+                            done();
+                        });
+                    });
+                    skipIfGCP(`should get a large object from ${s3Type}`,
+                    done => {
+                        s3.getObject({ Bucket: bucket, Key: s3BigObject },
+                            (err, res) => {
+                                assert.equal(err, null,
+                                    `Expected success but got error ${err}`);
+                                assert.strictEqual(res.ETag, `"${bigMD5}"`);
+                                done();
+                            });
+                    });
+                });
             });
         });
 
         describeSkipIfNotMultiple('with bucketMatch set to false', () => {
-            beforeEach(done => {
-                s3.putObject({ Bucket: bucket, Key: mismatchObject, Body: body,
-                Metadata: { 'scal-location-constraint': awsLocationMismatch } },
-                err => {
-                    assert.equal(err, null, `Err putting object: ${err}`);
-                    done();
-                });
-            });
-
-            it('should get an object from AWS', done => {
-                s3.getObject({ Bucket: bucket, Key: mismatchObject },
-                (err, res) => {
-                    assert.equal(err, null, `Error getting object: ${err}`);
-                    assert.strictEqual(res.ETag, `"${correctMD5}"`);
-                    done();
+            Object.keys(s3Backends).forEach(s3Type => {
+                const { s3LocationMismatch } = s3Backends[s3Type];
+                describe(`${s3Type}`, () => {
+                    beforeEach(done => {
+                        s3.putObject({
+                            Bucket: bucket,
+                            Key: mismatchObject,
+                            Body: body,
+                            Metadata: {
+                                'scal-location-constraint': s3LocationMismatch,
+                            },
+                        },
+                        err => {
+                            assert.equal(err, null,
+                                `Err putting object: ${err}`);
+                            done();
+                        });
+                    });
+                    it(`should get an object from ${s3Type}`, done => {
+                        s3.getObject({ Bucket: bucket, Key: mismatchObject },
+                        (err, res) => {
+                            assert.equal(err, null,
+                                `Error getting object: ${err}`);
+                            assert.strictEqual(res.ETag, `"${correctMD5}"`);
+                            done();
+                        });
+                    });
                 });
             });
         });
